@@ -1,0 +1,217 @@
+---
+title: "Redo exam 1"
+author: "Thakur Prasad Ghimire"
+date: "10/18/2021"
+output: word_document
+---
+
+
+```{r}
+library(dplyr)
+
+```
+
+```{r}
+load("C:/Homework EcoB2000/Redo Exam 1/HHPulse1.Rdata")
+load("C:/Homework EcoB2000/Redo Exam 1/HHPulse2.Rdata")
+
+```
+
+
+```{r}
+NewDF<-data.frame(HHPulse1,HHPulse2)
+```
+
+#cross tabulation before Na value cleaned
+
+
+```{r}
+xtabs(~EEDUC+RECVDVACC+REGION,data=NewDF)
+
+```
+
+#To show EEDUC,RECVDVACC and Region data intraction.
+
+
+```{r}
+View (select(NewDF,EEDUC,RECVDAVCC,REGION))
+str(select(NewDF,EEDUC,RECVDVACC,REGION))
+```
+#count how much is RECVDAVCC has NAvalues , and  each values,because YES has more frequency  than NO, i decide NA to YES.
+
+```{r}
+table(NewDF$RECVDVACC)
+```
+
+# Change the NA values to YES.
+
+
+```{r}
+NewDF$RECVDVACC[NewDF$RECVDVACC=="NA"]<-"yes got VAxx"
+NewDF$RECVDVACC<-factor(NewDF$RECVDVACC)
+NewDF$RECVDVACC<-as.numeric(NewDF$RECVDVACC)
+
+```
+
+#New cross tabulation ,after NA is cleaned.
+
+
+```{r}
+xtabs(~EEDUC+RECVDVACC+REGION,data=NewDF)
+
+```
+
+#from question 1 i got is RECVADVACC=EEDUC+REGION+REGION*EEDUC
+
+#H0: There is no effect of Education and Region to RECVDVACC
+#H1: There is an effect of Education and Region to RECVADVACC
+simultaan test using ANOVA
+
+
+```{r}
+anov1<-aov(formula=RECVDVACC~EEDUC*REGION,data=NewDF)
+summary(anov1) 
+
+```
+
+
+
+
+From thee result of anov1 , i can conclude that there is an effect of Education and Region to RECVDVACC.
+
+using by partial t- test 
+
+```{r}
+reg<-lm(formula=RECVDVACC~EEDUC+REGION,data=NewDF)
+summary(reg)
+```
+#confident interval with 99% level two sides
+
+```{r}
+
+confint(reg,level=0.99)
+```
+
+#2
+
+```{r}
+xtabs(~EEDUC+RECVDVACC+GENID_DESCRIBE,NewDF)
+```
+# I change NA gender to other Gender
+
+```{r}
+NewDF$GENID_DESCRIBE[NewDF$GENID_DESCRIBE=="NA"]<-"other"
+NewDF$GENID_DESCRIBE<-factor(NewDF$GENID_DESCRIBE)
+
+```
+
+H0: There is no effect odf education and GENDER_DESCRIBE to RECVDVACC
+H1: There is an effect of Education and GENDER_DESCRIBE to RECVDVACC
+
+#simultaan test using ANOVA
+
+```{r}
+anov2<-aov(formula=RECVDVACC~EEDUC+GENID_DESCRIBE,data=NewDF)
+summary(anov2)
+```
+
+#From the result ANOVA2 i can conclude that there is an effect od Education and GENID_DESCRIBE to participant of RECVDVACC
+
+#partial test using t-test
+
+```{r}
+reg2<-lm(formula=RECVDVACC~EEDUC+GENID_DESCRIBE,data=NewDF)
+summary(reg2)
+```
+
+#confident interval with 99% level two-sides
+
+```{r}
+confint(reg2,level=0.99)
+
+```
+
+
+
+
+#Q3
+
+```{r}
+library(class)
+library(caret)
+```
+
+```{r}
+load("C:/Homework EcoB2000/Redo Exam 1/Household_Pulse_data.RData")
+```
+
+
+# I choose the RACE and States because it is interesting how people on each staterespon to Vaccine.
+
+
+```{r}
+dataKN<-data.frame(select(Household_Pulse_data,RRACE,RECVDVACC,EST_ST))
+summary(dataKN)
+
+```
+
+```{r}
+r<-predict(x=nrow(dataKN),size = 0.01*nrow(dataKN),replace = FALSE)
+predect<-dataKN[r,]
+
+pred1$RECVDVACC[smpl$RECVDVACC=="NA"]<-"yes got vaxx"
+pred1$RECVDVACC<-factor(pred1$RECVDVACC)
+pred1$RRACE<-as.integer(pred1$RRACE)
+pred1$EST_ST<-as.integer(predd1$EST_ST)
+
+str(pred1)
+
+```
+
+
+
+
+
+
+
+
+```{r}
+raNUm<-sample(x=nrow(smpl),size = 0.70*nrow(smpl),replace = FALSE)
+train_kn<-smpl[raNUm,]
+test_kn<-smpl[-raNUm,]
+train_lab<-train_kn$RECVDVACC
+knn1<-knn(train = train_kn[,-2],test = test_kn[,-2],cl =train_lab,k=7)
+
+confusionMatrix(table(test_kn$RECVDVACC,knn1))
+
+```
+ Confusion matrix show accurency 92% which mean knn work very well to classify the case.
+ 
+ Thakur Prasad Ghimire 
+ City college of New York
+ Student ID is:23987365
+ 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
